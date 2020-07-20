@@ -15,36 +15,27 @@ to be installed.
 
 Currently blocked on:
 
+
 ``` shell
-Detailed message:
-Error: unbalanced monitors: mismatch at monitorexit, 62|Invoke#Numbers.num != 238|Invoke#Numbers.num
-Call path from entry point to datalevin.storage.Store.insert(Object):
-	at datalevin.storage.Store.insert(storage.clj:181)
-	at datalevin.storage$fn__4374$G__4258__4377.invoke(storage.clj:136)
-	at clojure.core.proxy$clojure.lang.APersistentMap$ff19274a.applyTo(Unknown Source)
+$ ./datalevin-native
+Exception in thread "main" java.lang.UnsatisfiedLinkError: com.kenai.jffi.Foreign.invokeN1O1(JJJLjava/lang/Object;III)J [symbol: Java_com_kenai_jffi_Foreign_invokeN1O1 or Java_com_kenai_jffi_Foreign_invokeN1O1__JJJLjava_lang_Object_2III]
+	at com.oracle.svm.jni.access.JNINativeLinkage.getOrFindEntryPoint(JNINativeLinkage.java:145)
+	at com.oracle.svm.jni.JNIGeneratedMethodSupport.nativeCallAddress(JNIGeneratedMethodSupport.java:57)
+	at com.kenai.jffi.Foreign.invokeN1O1(Foreign.java)
+	at com.kenai.jffi.Invoker.invokeN1(Invoker.java:997)
+	at org.lmdbjava.Library$Lmdb$jnr$ffi$0.mdb_env_create(Unknown Source)
+	at org.lmdbjava.Env$Builder.open(Env.java:486)
+	at org.lmdbjava.Env$Builder.open(Env.java:512)
+	at datalevin.lmdb$open_lmdb.invokeStatic(lmdb.clj:689)
+	at datalevin.lmdb$open_lmdb.invoke(lmdb.clj:678)
+	at datalevin.lmdb$open_lmdb.invokeStatic(lmdb.clj:682)
+	at datalevin.storage$open.invokeStatic(storage.clj:386)
+	at datalevin.db$empty_db.invokeStatic(db.cljc:213)
+	at datalevin.core$create_conn.invokeStatic(core.cljc:387)
+	at borkdude.datalevin_native.main$_main.invokeStatic(main.clj:11)
+	at borkdude.datalevin_native.main$_main.doInvoke(main.clj:11)
+	at clojure.lang.RestFn.invoke(RestFn.java:397)
+	at clojure.lang.AFn.applyToHelper(AFn.java:152)
+	at clojure.lang.RestFn.applyTo(RestFn.java:132)
 	at borkdude.datalevin_native.main.main(Unknown Source)
-	at com.oracle.svm.core.JavaMainWrapper.runCore(JavaMainWrapper.java:149)
-	at com.oracle.svm.core.JavaMainWrapper.run(JavaMainWrapper.java:184)
-	at com.oracle.svm.core.code.IsolateEnterStub.JavaMainWrapper_run_5087f5482cc9a6abc971913ece43acb471d2631b(generated:0)
-Original exception that caused the problem: org.graalvm.compiler.code.SourceStackTraceBailoutException$1: unbalanced monitors: mismatch at monitorexit, 62|Invoke#Numbers.num != 238|Invoke#Numbers.num
-	at datalevin.storage.Store.insert(storage.clj:228)
 ```
-
-The `locking` issue with GraalVM is supposed to be fixed in CLJ-1472. A repro of the problem:
-
-``` shell
-(defprotocol IFoo
-  (store [_]))
-
-(deftype Foo [^long max-gt]
-  IFoo
-  (store [_]
-    (locking max-gt
-      (println "Stored!"))))
-
-(defn -main [& _args]
-  (let [foo (Foo. 10)]
-    (store foo)))
-```
-
-When the `^long` type hint is removed, the error disappears.
