@@ -30,5 +30,21 @@ Original exception that caused the problem: org.graalvm.compiler.code.SourceStac
 	at datalevin.storage.Store.insert(storage.clj:228)
 ```
 
-The `locking` issue with GraalVM is supposed to be fixed in CLJ-1472, I don't
-know why it's propping up here. Datalevin is not AOT-compiled so this can't be the issue.
+The `locking` issue with GraalVM is supposed to be fixed in CLJ-1472. A repro of the problem:
+
+``` shell
+(defprotocol IFoo
+  (store [_]))
+
+(deftype Foo [^long max-gt]
+  IFoo
+  (store [_]
+    (locking max-gt
+      (println "Stored!"))))
+
+(defn -main [& _args]
+  (let [foo (Foo. 10)]
+    (store foo)))
+```
+
+When the `^long` type hint is removed, the error disappears.

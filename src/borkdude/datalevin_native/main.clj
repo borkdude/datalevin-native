@@ -8,6 +8,15 @@
              :name {:db/valueType :db.type/string
                     :db/unique    :db.unique/identity}})
 
+(defprotocol IFoo
+  (store [_]))
+
+(deftype Foo [^:volatile-mutable ^long max-gt]
+  IFoo
+  (store [_]
+    (locking max-gt
+      (println "Stored!"))))
+
 (defn -main [& _args]
   (let [conn (d/create-conn schema "/tmp/datalevin-test")]
     (try
