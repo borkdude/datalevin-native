@@ -1,6 +1,6 @@
 # datalevin-native
 
-This is an experiment to compile datalevin with GraalVM native-image.
+This is an experiment to compile [datalevin](https://github.com/juji-io/datalevin) with GraalVM native-image.
 
 ## Build
 
