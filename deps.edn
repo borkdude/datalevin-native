@@ -1,4 +1,4 @@
 {:deps
  {org.clojure/clojure {:mvn/version "1.10.2-alpha1"}
-  datalevin {:mvn/version "0.2.3"}}
+  datalevin {:mvn/version "0.2.4"}}
  :paths ["src" "resources"]}
